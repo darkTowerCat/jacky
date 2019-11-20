@@ -33,7 +33,7 @@ class JackBot(rocketbot.WebsocketRocketBot):
         user_name = input_json['user_name']
         if user_name == 'irc':
             return
-        if not re.search('^(?i)jacky\s', text):
+        if not re.search('^(?i)@jacky\s', text):
             self.logger.debug('Quiting')
             return
         #parse data
@@ -72,13 +72,7 @@ class JackBot(rocketbot.WebsocketRocketBot):
         elif split_string[1] == 'mac' or split_string[1] == 'macaddr' or split_s                                                                                        tring[1] == 'mac_addr':
             self.search_mac(split_string[2])
             answer_quality = 1
-        if answer_quality == 1:
-            #warning that live data is not needed
-            self.respond('''
-            Please respond with features you would like to add.
-            ''')
-            return
-        else:
+        if answer_quality != 1:
             #planning on replacing this with a string compare function that offe                                                                                        rs suggestions
             self.respond('{} request is not found, try typing your instruction a                                                                                        gain, or ask for help.'.format(user_name))
             return
@@ -104,7 +98,6 @@ class JackBot(rocketbot.WebsocketRocketBot):
         jack_info = cur.fetchall()
         #self.logger.debug('jack_info:')
         #self.logger.debug(jack_info)
-        #jack2 jack g-d550
         responce = ''
         for jack in jack_info:
             #self.logger.debug(jack_info.index(jack))
@@ -126,6 +119,8 @@ class JackBot(rocketbot.WebsocketRocketBot):
 
             cur.execute(command,(jackid,))
             machine_info = cur.fetchall()
+            if not machine_info:
+                responce = responce + 'Jack ' + label + ' is not plugged into a                                                                                         switch.\n'
             for machine in machine_info:
                 machine_name, hostid, mac_addr = machine
                 hostid = hostid[0]
@@ -148,6 +143,8 @@ class JackBot(rocketbot.WebsocketRocketBot):
                         switchjack = switch,
                         switchport = switchport)
 
+        if responce == '':
+            responce = 'Nothing found';
         self.respond(responce)
 
     def search_switchport(self, switch_port, LIMIT):
@@ -240,6 +237,8 @@ class JackBot(rocketbot.WebsocketRocketBot):
                     switch=switch,
                     switchport=switchport)
 
+        if responce == '':
+            responce = 'Nothing found';
         self.respond(responce)
 
     def search_room(self, place):
@@ -289,6 +288,8 @@ class JackBot(rocketbot.WebsocketRocketBot):
                         mac_addr=mac_addr,
                         switch=switch,
                         switchport=switchport)
+        if responce == '':
+            responce = 'Nothing found';
         self.respond(responce)
 
 
@@ -340,6 +341,8 @@ class JackBot(rocketbot.WebsocketRocketBot):
                         switchport=switchport)
             if hostid2 == 1000:
                     responce += '`{mac}` is idenified as a laptop.'.format(mac=m                                                                                        ac)
+        if responce == '':
+            responce = 'Nothing found';
         self.respond(responce)
 
 
